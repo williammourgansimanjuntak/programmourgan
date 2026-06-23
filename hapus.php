@@ -1,13 +1,24 @@
 <?php
 
-include 'config/koneksi.php';
-
 $id = $_GET['id'];
 
-mysqli_query($conn,
-"DELETE FROM members WHERE id='$id'"
-);
+$data = file_get_contents("data.json");
+$members = json_decode($data, true);
 
-header("Location:index.php");
+if (!is_array($members)) {
+    $members = [];
+}
+
+// hapus data sesuai index
+unset($members[$id]);
+
+// reset index array
+$members = array_values($members);
+
+// simpan ulang
+file_put_contents("data.json", json_encode($members, JSON_PRETTY_PRINT));
+
+header("Location: index.php");
+exit;
 
 ?>
