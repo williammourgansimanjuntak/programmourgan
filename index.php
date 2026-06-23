@@ -1,12 +1,19 @@
 <?php
-include 'config/koneksi.php';
+
+$data = file_get_contents("data.json");
+$members = json_decode($data, true);
+
+// kalau kosong atau error, jadikan array kosong
+if (!is_array($members)) {
+    $members = [];
+}
+
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sistem Informasi JKT48</title>
-
+    <title>Sistem Member</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
@@ -14,9 +21,9 @@ include 'config/koneksi.php';
 
 <div class="container mt-5">
 
-    <h2 class="mb-4">Sistem Informasi JKT48</h2>
+    <h2>Daftar Member</h2>
 
-    <a href="tambah.php" class="btn btn-success mb-3">
+    <a href="tambah.php" class="btn btn-primary mb-3">
         Tambah Member
     </a>
 
@@ -24,6 +31,7 @@ include 'config/koneksi.php';
 
         <tr>
             <th>No</th>
+            <th>Foto</th>
             <th>Nama</th>
             <th>Generasi</th>
             <th>Tanggal Lahir</th>
@@ -31,41 +39,49 @@ include 'config/koneksi.php';
             <th>Aksi</th>
         </tr>
 
-        <?php
+        <?php $no = 1; ?>
 
-        $no = 1;
+        <?php if (!empty($members)) : ?>
+            <?php foreach ($members as $index => $m) : ?>
 
-        $query = mysqli_query($conn,"SELECT * FROM members");
+                <tr>
 
-        while($data = mysqli_fetch_array($query))
-        {
+                    <td><?= $no++ ?></td>
 
-        ?>
+<td 
+                class="text-center align-middle">
+        <?php if (!empty($m['foto'])) : ?>
+                <img src="uploads/<?= $m['foto'] ?>" width="120" class="rounded">
+        <?php else : ?>
+                Tidak ada foto
+        <?php endif; ?>
+</td>
 
-        <tr>
-            <td><?= $no++ ?></td>
-            <td><?= $data['nama'] ?></td>
-            <td><?= $data['generasi'] ?></td>
-            <td><?= $data['tanggal_lahir'] ?></td>
-            <td><?= $data['deskripsi'] ?></td>
+                    <td><?= htmlspecialchars($m['nama']) ?></td>
+                    <td><?= htmlspecialchars($m['generasi']) ?></td>
+                    <td><?= htmlspecialchars($m['tanggal_lahir']) ?></td>
+                    <td><?= htmlspecialchars($m['deskripsi']) ?></td>
 
-            <td>
+                    <td>
+                        <a href="hapus.php?id=<?= $index ?>" 
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Yakin mau hapus?')">
+                           Hapus
+                        </a>
+                    </td>
 
-                <a href="edit.php?id=<?= $data['id'] ?>"
-                    class="btn btn-warning btn-sm">
-                    Edit
-                </a>
+                </tr>
 
-                <a href="hapus.php?id=<?= $data['id'] ?>"
-                    class="btn btn-danger btn-sm"
-                    onclick="return confirm('Hapus data?')">
-                    Hapus
-                </a>
+            <?php endforeach; ?>
+        <?php else : ?>
 
-            </td>
-        </tr>
+            <tr>
+                <td colspan="7" class="text-center">
+                    Belum ada data member
+                </td>
+            </tr>
 
-        <?php } ?>
+        <?php endif; ?>
 
     </table>
 
